@@ -1,0 +1,47 @@
+{% extends '/base.html.twig' %}
+
+{% block body %}
+    <h1>{{ data.title }}</h1>
+    <label>{{ data.date.format('Y-m-d H:i:s') }}</label>
+    <ul>
+        {% for message in data.messages %}
+            <li>{{ message.text }}(Autor: {{ message.author }})</li>
+        {% endfor %}
+    </ul>
+    <div>
+        <h3>Numery:</h3>
+        <p>{{ data.numbers|join(', ') }}</p>
+    </div>
+    <div>
+        <h3>Pogoda: </h3>
+        <p>Temperatura: {{ data.weather.temperature }} stopni</p>
+        <p>Warunki: {{ data.weather.condition }}</p>
+    </div>
+    <div>
+        {% if data.isPremiumUser == false %}
+            <label>Użytkownik posiada pakiet: DARMOWY</label>
+        {% else %}
+            <label>Użytkownik posiada pakiet: PREMIUM</label>
+        {% endif %}
+    </div>
+    <div>
+        <ul>
+                <li>{{ data.user.name }} ({{ data.user.email }})</li>
+        </ul>
+    </div>
+    <div>
+        <p>Strona została odwiedzona {{ data.pageViews }} razy</p>
+    </div>
+    <div>
+        <h3>Popularne tagi:</h3>
+        <p>{{ data.popularTags|join(', ') }}</p>
+    </div>
+    <div>
+        <h3>Ocena strony: {{ data.rating }}</h3>
+    </div>
+{% endblock %}
+
+{% block title %}
+
+{% endblock %}
+
