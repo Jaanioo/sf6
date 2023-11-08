@@ -12,8 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GameController extends AbstractController
 {
-    #[Route('/game/new', name: 'app_game_new')]
-    public function new(EntityManagerInterface $entityManager,  Request $request): Response
+    #[Route('/game/new', name: 'app_game')]
+    public function index(EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(GameType::class, null,
                     [
@@ -51,6 +51,8 @@ class GameController extends AbstractController
     #[Route('/games', name: 'game_list')]
     public function list(EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
         $games = $entityManager->getRepository(Game::class)->findAll();
 
         return $this->render('game/list.html.twig', [
@@ -63,6 +65,7 @@ class GameController extends AbstractController
     {
         $form = $this->createForm(
             GameType::class, $game);
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
