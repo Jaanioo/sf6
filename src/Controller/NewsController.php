@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\News;
+use App\Form\GameType;
+use App\Form\NewsType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -30,17 +33,28 @@ class NewsController extends AbstractController
     }
 
     #[Route('/new/news', name: 'news_new')]
-    public function new(EntityManagerInterface $entityManager): Response
+    public function new(EntityManagerInterface $entityManager, Request $request): Response
     {
-        $new = new News();
+        $form = $this->createForm(NewsType::class);
 
-        $new->setTitle('News Title')
-            ->setText('News Text')
-            ->setCreatedAt(new \DateTimeImmutable('2007-08-21'));
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $new = $form->getData();
 
-        $entityManager->getRepository(News::class)->save($new, true);
+            $entityManager->persist($new);
+            $entityManager->flush();
 
-        return new Response('Saved new news: ');
+            $this->addFlash(
+                'success',
+                'News added!'
+            );
+
+            return $this->redirectToRoute('news_show_one', ['id' => $new->getId()]);
+        }
+
+        return $this->render('news/new.html.twig', [
+            'form' => $form,
+        ]);
     }
 
     #[Route('/news/edit/{id}', name: 'news_edit_one')]

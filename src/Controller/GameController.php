@@ -3,25 +3,41 @@
 namespace App\Controller;
 
 use App\Entity\Game;
+use App\Form\GameType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class GameController extends AbstractController
 {
-    #[Route('/game', name: 'app_game')]
-    public function index(EntityManagerInterface $entityManager): Response
+    #[Route('/game/new', name: 'app_game_new')]
+    public function new(EntityManagerInterface $entityManager,  Request $request): Response
     {
-        $game = new Game();
-        $game->setName('LOL')
-            ->setDescription('League of Legends')
-            ->setScore(10)
-            ->setReleaseDate(new \DateTime('2007-08-21'));
+        $form = $this->createForm(GameType::class, null,
+                    [
+                        'method' => 'GET',
+                    ]);
 
-        $entityManager->getRepository(Game::class)->save($game, true);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $game = $form->getData();
 
-        return new Response('Saved new game with name: ' . $game->getName());
+            $entityManager->persist($game);
+            $entityManager->flush();
+
+            $this->addFlash(
+                'success',
+                'Game saved!'
+            );
+
+            return $this->redirectToRoute('show_game', ['id' => $game->getId()]);
+        }
+
+        return $this->render('game/new.html.twig', [
+            'form' => $form,
+        ]);
     }
 
     #[Route('/game/{id}', name: 'show_game')]
@@ -43,19 +59,31 @@ class GameController extends AbstractController
     }
 
     #[Route('/game/edit/{id}', name: 'game_edit')]
-    public function edit(EntityManagerInterface $entityManager, int $id): Response
+    public function edit(EntityManagerInterface $entityManager, Request $request, Game $game): Response
     {
-        $game = $entityManager->getRepository(Game::class)->find($id);
+        $form = $this->createForm(
+            GameType::class, $game);
 
-        if (!$game) {
-            throw $this->createNotFoundException('Game not found' . $id);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $game = $form->getData();
+
+            $entityManager->persist($game);
+            $entityManager->flush();
+
+            $this->addFlash(
+                'success',
+                'Game changed!'
+            );
+
+            return $this->redirectToRoute('show_game', ['id' => $game->getId()]);
         }
 
-        $game->setScore(5);
 
-        $entityManager->flush();
-
-        return $this->redirectToRoute('show_game', ['id' => $game->getId()]);
+        return $this->render('game/edit.html.twig', [
+            'form' => $form,
+            'game' => $game,
+        ]);
     }
 
     #[Route('/game/delete/{id}', name: 'game_delete')]

@@ -7,7 +7,7 @@
         <ul>
             {% for game in games %}
                 <li>
-                    {{ game.name }} - <a href="{{ path('show_game', {'id': game.id}) }}">details</a>
+                    {{ game.name }} - <a href="{{ path('show_game', {'id': game.id}) }}">details</a> - <a href="{{ path('game_edit', {'id': game.id}) }}">edit</a>
                 </li>
             {% endfor %}
         </ul>
