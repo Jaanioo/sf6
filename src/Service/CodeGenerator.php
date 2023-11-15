@@ -10,12 +10,13 @@ class CodeGenerator
     public function __construct(
         private readonly Filesystem $filesystem,
         private readonly string $codePrefix,
+        private readonly CodeCreator $codeCreator,
     ) {
     }
 
     public function generate(): string
     {
-        $code = $this->codePrefix . random_int(1000, 9000);
+        $code = $this->codeCreator->createCode($this->codePrefix);
 
         $this->filesystem->mkdir('codes');
         $this->filesystem->touch('codes/'.$code.'.txt');
