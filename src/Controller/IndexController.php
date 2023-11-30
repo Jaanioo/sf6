@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Message\SendKey;
 use App\Service\CodeGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class IndexController extends AbstractController
@@ -55,5 +57,13 @@ class IndexController extends AbstractController
         $code = $codeGenerator->generate();
 
         return $this->render('index/code.html.twig', ['code' => $code]);
+    }
+
+    #[Route('/sendcode', name: 'index.sendcode')]
+    public function getCode(MessageBusInterface $bus): JsonResponse
+    {
+       $bus->dispatch(new SendKey(2));
+
+        return new JsonResponse(['status' => 'Email sent']);
     }
 }
