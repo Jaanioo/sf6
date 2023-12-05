@@ -10,7 +10,7 @@ class CodeGenerator
     public function __construct(
         private readonly Filesystem $filesystem,
         private readonly string $codePrefix,
-        private readonly CodeCreator $codeCreator,
+        private readonly CodeCreatorDecorator $codeCreator,
     ) {
     }
 
